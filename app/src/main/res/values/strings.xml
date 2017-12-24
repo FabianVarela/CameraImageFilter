@@ -1,3 +1,13 @@
 <resources>
-    <string name="app_name">CameraImageFilter</string>
+    <string name="app_name">Camera Image Filter</string>
+
+    <string name="save_image_success">Image saved successfully</string>
+    <string name="save_image_error">Unable to save image</string>
+    <string name="negative_filter">Image with negative filter</string>
+    <string name="scale_gray_filter">Image with grayscale filter</string>
+    <string name="normal_filter">Normal image without filters</string>
+    <string name="error_save_sdcard">Can not be stored on SD card</string>
+    <string name="success_folder_created">The directory or folder was created successfully</string>
+    <string name="message_exists_folder">Folder already exists</string>
+    <string name="message_sdcard_noexists">SD card not found</string>
 </resources>
