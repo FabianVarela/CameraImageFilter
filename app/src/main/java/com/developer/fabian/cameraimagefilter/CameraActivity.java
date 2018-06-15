@@ -133,19 +133,23 @@ public class CameraActivity extends AppCompatActivity implements EasyPermissions
     }
 
     public void saveImage(View view) {
-        Bitmap bitmap = ((BitmapDrawable) this.imgPhoto.getDrawable()).getBitmap();
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        if (imgPhoto.getVisibility() == View.VISIBLE) {
+            Bitmap bitmap = ((BitmapDrawable) this.imgPhoto.getDrawable()).getBitmap();
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
-        String fileName = "IMG_" + timeStamp + ".jpg";
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+            String fileName = "IMG_" + timeStamp + ".jpg";
 
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
-        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, fileName, null);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+            String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, fileName, null);
 
-        if (path.equalsIgnoreCase(""))
-            Toast.makeText(this, R.string.save_image_error, Toast.LENGTH_SHORT).show();
-        else
-            Toast.makeText(this, R.string.save_image_success, Toast.LENGTH_SHORT).show();
+            if (path.equalsIgnoreCase(""))
+                Toast.makeText(this, R.string.save_image_error, Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, R.string.save_image_success, Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, R.string.no_image, Toast.LENGTH_SHORT).show();
+        }
     }
 
     /*  End action buttons  */

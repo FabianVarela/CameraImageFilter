@@ -9,4 +9,6 @@
 
     <string name="camera_permissions">The application needs permission to your camera</string>
     <string name="storage_permissions">The application needs permissions to your folder</string>
+
+    <string name="no_image">You must take a picture</string>
 </resources>
