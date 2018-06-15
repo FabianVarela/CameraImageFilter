@@ -1,13 +1,13 @@
 package com.developer.fabian.cameraimagefilter;
 
+import android.Manifest;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -16,15 +16,23 @@ import android.widget.Toast;
 import com.developer.fabian.cameraimagefilter.utils.Utilities;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
-public class CameraActivity extends AppCompatActivity {
+import pub.devrel.easypermissions.EasyPermissions;
+
+public class CameraActivity extends AppCompatActivity implements EasyPermissions.PermissionCallbacks {
 
     private static final int CAPTURE_PHOTO_IMAGE = 1;
-    private static final String FOLDER_NAME = "CameraImageFilter";
+    private static final int REQUEST_CAMERA = 2;
+
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.CAMERA,
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
 
     private ImageView imgPhoto;
     private ImageButton imbSave;
@@ -33,10 +41,12 @@ public class CameraActivity extends AppCompatActivity {
     private ImageButton imbNormal;
 
     private Utilities utilities;
+
     private Bitmap bmpOriginal;
     private Bitmap bmpNegative;
     private Bitmap bmpGrayScale;
-    private boolean openCamera = false;
+
+    private boolean isOpenCamera = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,19 +61,18 @@ public class CameraActivity extends AppCompatActivity {
 
         this.utilities = new Utilities();
 
-        if (!this.openCamera) {
-            this.imgPhoto.setVisibility(View.INVISIBLE);
-            this.imbSave.setEnabled(false);
-            this.imbGray.setEnabled(false);
-            this.imbNegative.setEnabled(false);
-            this.imbNormal.setEnabled(false);
+        if (!this.isOpenCamera) {
+            showImage(false);
+            enableElements(false);
         }
     }
 
+    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
         if (requestCode == CAPTURE_PHOTO_IMAGE && resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap bitmapImage = (Bitmap) extras.get("data");
+            Bitmap bitmapImage = (Bitmap) data.getExtras().get("data");
 
             int imageWidth = bitmapImage.getWidth();
             int imageHeight = bitmapImage.getHeight();
@@ -73,83 +82,97 @@ public class CameraActivity extends AppCompatActivity {
             this.bmpNegative = this.utilities.matToBit(this.utilities.negativeScale(Utilities.filterTest(bitmapImage), imageWidth, imageHeight), imageWidth, imageHeight);
 
             this.imgPhoto.setImageBitmap(this.bmpOriginal);
-            this.imgPhoto.setVisibility(View.VISIBLE);
+            showImage(true);
         }
     }
 
-    public void onOpenCamera(View view) {
-        this.openCamera = true;
-        Intent intentPhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this);
+    }
 
-        if (intentPhoto.resolveActivity(getPackageManager()) != null) {
-            startActivityForResult(intentPhoto, CAPTURE_PHOTO_IMAGE);
-            imbSave.setEnabled(true);
-            imbGray.setEnabled(true);
-            imbNegative.setEnabled(true);
-            imbNormal.setEnabled(true);
+    @Override
+    public void onPermissionsGranted(int requestCode, @NonNull List<String> perms) {
+    }
+
+    @Override
+    public void onPermissionsDenied(int requestCode, @NonNull List<String> perms) {
+        Toast.makeText(this, R.string.storage_permissions, Toast.LENGTH_SHORT).show();
+    }
+
+    /*  Action buttons  */
+
+    public void openCamera(View view) {
+        if (hasPermissions()) {
+            this.isOpenCamera = true;
+            Intent intentPhoto = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+
+            if (intentPhoto.resolveActivity(getPackageManager()) != null) {
+                startActivityForResult(intentPhoto, CAPTURE_PHOTO_IMAGE);
+                enableElements(true);
+            }
+        } else {
+            requestPermissions();
         }
     }
 
-    public void onSaveImage(View view) {
-        File media = getAccessDirectory();
-
-        try {
-            media.createNewFile();
-
-            Bitmap bitmap = ((BitmapDrawable) this.imgPhoto.getDrawable()).getBitmap();
-            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-            byte[] bitmapData = byteArrayOutputStream.toByteArray();
-
-            FileOutputStream fileOutputStream = new FileOutputStream(media);
-            fileOutputStream.write(bitmapData);
-            fileOutputStream.flush();
-            fileOutputStream.close();
-
-            Toast.makeText(this, R.string.save_image_success, Toast.LENGTH_SHORT).show();
-        } catch (Exception e) {
-            Toast.makeText(this, R.string.save_image_error, Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    public void onNegative(View view) {
+    public void convertImageToNegative(View view) {
         Toast.makeText(this, R.string.negative_filter, Toast.LENGTH_SHORT).show();
         this.imgPhoto.setImageBitmap(this.bmpNegative);
     }
 
-    public void onGrayScale(View view) {
+    public void convertImageToGrayScale(View view) {
         Toast.makeText(this, R.string.scale_gray_filter, Toast.LENGTH_SHORT).show();
         this.imgPhoto.setImageBitmap(this.bmpGrayScale);
     }
 
-    public void onNormal(View view) {
+    public void convertImageToNormal(View view) {
         Toast.makeText(this, R.string.normal_filter, Toast.LENGTH_SHORT).show();
         this.imgPhoto.setImageBitmap(this.bmpOriginal);
     }
 
-    @Nullable
-    private File getAccessDirectory() {
-        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
-            File dirMedia = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), FOLDER_NAME);
+    public void saveImage(View view) {
+        Bitmap bitmap = ((BitmapDrawable) this.imgPhoto.getDrawable()).getBitmap();
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-            if (!dirMedia.exists()) {
-                if (!dirMedia.mkdirs()) {
-                    Toast.makeText(this, R.string.error_save_sdcard, Toast.LENGTH_SHORT).show();
-                    return null;
-                } else {
-                    Toast.makeText(this, R.string.success_folder_created, Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(this, R.string.message_exists_folder, Toast.LENGTH_SHORT).show();
-            }
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(new Date());
+        String fileName = "IMG_" + timeStamp + ".jpg";
 
-            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-            return new File(dirMedia.getPath() + File.separator + "IMG_" + timeStamp + ".jpg");
-        }
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+        String path = MediaStore.Images.Media.insertImage(getContentResolver(), bitmap, fileName, null);
 
-        Toast.makeText(this, R.string.message_sdcard_noexists, Toast.LENGTH_SHORT).show();
+        if (path.equalsIgnoreCase(""))
+            Toast.makeText(this, R.string.save_image_error, Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this, R.string.save_image_success, Toast.LENGTH_SHORT).show();
+    }
 
-        return null;
+    /*  End action buttons  */
+
+    private boolean hasPermissions() {
+        return EasyPermissions.hasPermissions(this, PERMISSIONS);
+    }
+
+    private void requestPermissions() {
+        EasyPermissions.requestPermissions(
+                this,
+                getString(R.string.camera_permissions),
+                REQUEST_CAMERA,
+                PERMISSIONS);
+    }
+
+    private void enableElements(boolean isEnabled) {
+        this.imbSave.setEnabled(isEnabled);
+        this.imbGray.setEnabled(isEnabled);
+        this.imbNegative.setEnabled(isEnabled);
+        this.imbNormal.setEnabled(isEnabled);
+    }
+
+    private void showImage(boolean isShowing) {
+        if (isShowing)
+            this.imgPhoto.setVisibility(View.VISIBLE);
+        else
+            this.imgPhoto.setVisibility(View.INVISIBLE);
     }
 }

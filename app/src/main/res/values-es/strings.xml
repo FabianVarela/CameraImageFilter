@@ -6,8 +6,7 @@
     <string name="negative_filter">Imagen con filtro negativo</string>
     <string name="scale_gray_filter">Imagen con filtro de escala de grises</string>
     <string name="normal_filter">Imagen normal sin filtros</string>
-    <string name="error_save_sdcard">No se puede almacenar en la tarjeta SD</string>
-    <string name="success_folder_created">El directorio o carpeta se ha creado correctamente</string>
-    <string name="message_exists_folder">La carpeta ya existe</string>
-    <string name="message_sdcard_noexists">Tarjeta SD no encontrada</string>
+
+    <string name="camera_permissions">Necesitamos permiso a tu cámara</string>
+    <string name="storage_permissions">La aplicación necesita permisos a tu carpeta</string>
 </resources>

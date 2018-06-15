@@ -18,7 +18,7 @@
         android:layout_alignParentTop="true"
         android:layout_marginLeft="25dp"
         android:layout_marginStart="25dp"
-        android:onClick="onOpenCamera"
+        android:onClick="openCamera"
         android:src="@android:drawable/ic_menu_camera"
         tools:ignore="RtlHardcoded" />
 
@@ -31,7 +31,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginEnd="27dp"
         android:layout_marginRight="27dp"
-        android:onClick="onSaveImage"
+        android:onClick="saveImage"
         android:src="@android:drawable/ic_menu_save"
         tools:ignore="RtlHardcoded" />
 
@@ -54,7 +54,7 @@
         android:layout_below="@+id/imgPhoto"
         android:layout_marginTop="44dp"
         android:backgroundTint="@android:color/holo_purple"
-        android:onClick="onNegative"
+        android:onClick="convertImageToNegative"
         android:src="@android:drawable/ic_menu_report_image"
         android:tint="@android:color/holo_blue_bright"
         tools:ignore="RtlHardcoded" />
@@ -66,7 +66,7 @@
         android:layout_alignTop="@+id/imbNegative"
         android:layout_centerHorizontal="true"
         android:backgroundTint="@android:color/background_dark"
-        android:onClick="onGrayScale"
+        android:onClick="convertImageToGrayScale"
         android:src="@android:drawable/ic_menu_report_image"
         android:tint="@android:color/background_light" />
 
@@ -78,7 +78,7 @@
         android:layout_alignRight="@+id/imbSave"
         android:layout_alignTop="@+id/imbGrayScale"
         android:backgroundTint="@android:color/holo_blue_dark"
-        android:onClick="onNormal"
+        android:onClick="convertImageToNormal"
         android:src="@android:drawable/ic_menu_report_image"
         android:tint="@android:color/transparent"
         tools:ignore="RtlHardcoded" />
