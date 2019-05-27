@@ -110,17 +110,17 @@ class CameraActivity : AppCompatActivity(), EasyPermissions.PermissionCallbacks 
 
     fun convertImageToNegative(view: View) {
         Toast.makeText(this, R.string.negative_filter, Toast.LENGTH_SHORT).show()
-        imgPhoto.setImageBitmap(this.bmpNegative)
+        imgPhoto.setImageBitmap(bmpNegative)
     }
 
     fun convertImageToGrayScale(view: View) {
         Toast.makeText(this, R.string.scale_gray_filter, Toast.LENGTH_SHORT).show()
-        imgPhoto.setImageBitmap(this.bmpGrayScale)
+        imgPhoto.setImageBitmap(bmpGrayScale)
     }
 
     fun convertImageToNormal(view: View) {
         Toast.makeText(this, R.string.normal_filter, Toast.LENGTH_SHORT).show()
-        imgPhoto.setImageBitmap(this.bmpOriginal)
+        imgPhoto.setImageBitmap(bmpOriginal)
     }
 
     fun saveImage(view: View) {
